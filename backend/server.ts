@@ -1,33 +1,56 @@
-import fastify from 'fastify'
+import fastify, { FastifyInstance } from 'fastify'
 import cors from '@fastify/cors'
 import { PrismaClient } from '@prisma/client'
+import { createRouteLoader } from './utils/routeLoader'
 
-const server = fastify({
-  logger: true
-})
+export class Server {
+  private readonly app: FastifyInstance
+  private readonly prisma: PrismaClient
 
-export const prisma = new PrismaClient()
+  constructor() {
+    this.app = fastify({ logger: true })
+    this.prisma = new PrismaClient()
+  }
 
-// Register CORS
-server.register(cors, {
-  origin: process.env.CORS_ORIGIN
-})
-
-// Health check route
-server.get('/health', async () => {
-  return { status: 'ok' }
-})
-
-const start = async () => {
-  try {
-    await server.listen({ 
-      port: Number(process.env.PORT), 
-      host: process.env.HOST 
+  private async registerPlugins(): Promise<void> {
+    await this.app.register(cors, {
+      origin: process.env.CORS_ORIGIN
     })
-  } catch (err) {
-    server.log.error(err)
-    process.exit(1)
+  }
+
+  private async registerRoutes(): Promise<void> {
+    const routeLoader = createRouteLoader(this.app)
+    await routeLoader.loadRoutes()
+    
+    this.app.get('/health', async () => {
+      return { status: 'ok' }
+    })
+  }
+
+  public getPrisma(): PrismaClient {
+    return this.prisma
+  }
+
+  private async initialize(): Promise<void> {
+    await this.registerPlugins()
+    await this.registerRoutes()
+  }
+
+  public async start(): Promise<void> {
+    try {
+      await this.initialize()
+      await this.app.listen({ 
+        port: Number(process.env.PORT), 
+        host: process.env.HOST 
+      })
+    } catch (err) {
+      this.app.log.error(err)
+      process.exit(1)
+    }
   }
 }
 
-start()
+export const server = new Server()
+export const prisma = server.getPrisma()
+
+server.start()
