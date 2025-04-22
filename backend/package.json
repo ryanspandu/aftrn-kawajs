@@ -1,0 +1,36 @@
+{
+  "name": "kawajs-backend",
+  "version": "1.0.0",
+  "description": "Kawa CMS Backend - A modern, high-performance content management system",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "keywords": [
+    "cms",
+    "fastify",
+    "prisma",
+    "typescript"
+  ],
+  "author": "afterryan <hello@aftrn.com> (https://afterryan.com)",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^8.5.0",
+    "@fastify/swagger": "^9.5.0",
+    "@prisma/client": "^6.6.0",
+    "fastify": "^4.29.0",
+    "fastify-zod": "^1.4.0",
+    "lru-cache": "^10.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "glob": "^9.3.5",
+    "prisma": "^6.6.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  }
+}
